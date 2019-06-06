@@ -1,0 +1,27 @@
+name: botronom
+version: 1.0.0
+
+dependencies:
+  # Framework for the Discord API.
+  discordcr:
+    github: meew0/discordcr
+    branch: master
+  # Making discordcr much nicer to use.
+  discordcr-middleware:
+    github: z64/discordcr-middleware
+    branch: master
+  # Modularity
+  discordcr-plugin:
+    github: z64/discordcr-plugin
+  # Making requests on the srcom API
+  crest:
+    github: mamantoha/crest
+  # Scheduling requests
+  tasker:
+    github: spider-gazelle/tasker
+
+targets:
+  botronom:
+    main: src/entrypoint.cr
+
+license: MIT
