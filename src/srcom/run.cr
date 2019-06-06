@@ -84,7 +84,7 @@ class Run
                     fields << Discord::EmbedField.new(name: "Rejection reason", value: @rej_reason.not_nil!)
                     "A run has been rejected!"
                   when "new"
-                    embed.colour = 0x733430
+                    embed.colour = 0xb21e7b
                     "A new run is awaiting verification!"
                   end
 
