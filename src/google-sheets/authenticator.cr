@@ -50,13 +50,12 @@ class GoogleSheets::Authenticator
     client
   end
 
-  def refresh_client
+  def refresh_client(client : HTTP::Client)
     @token = @auth_client.get_access_token_using_refresh_token(File.read(REFRESH_PATH).gsub(/"/, ""))
-    client = HTTP::Client.new("sheets.googleapis.com", tls: true)
     self.token.authenticate(client)
     store_token
 
-    client
+    nil
   end
 
   def auth_code

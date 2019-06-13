@@ -34,7 +34,7 @@ module GoogleSheets
       # token, and then making sure the token is still valid that way, but I don't feel like doing
       # that right now.
       if response.status_message == "Unauthorized"
-        @client = @authenticator.refresh_client
+        @authenticator.refresh_client(@client)
         return true
       end
 
