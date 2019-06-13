@@ -3,12 +3,10 @@ require "./authenticator"
 
 module GoogleSheets
   class Sheet
-    property client : HTTP::Client
 
     def initialize(@sheet_id : String)
       @authenticator = GoogleSheets::Authenticator.new
-
-      @client = @authenticator.get_client
+      @authenticator.init_token
     end
 
     def get_level(table : String, range : String)
@@ -17,8 +15,8 @@ module GoogleSheets
       else
         "AllPickups!#{range}"
       end
-      response = self.client.get("/v4/spreadsheets/#{@sheet_id}/values/#{a1_notation}")
-
+      response = HTTP::Client.get("https://sheets.googleapis.com/v4/spreadsheets/#{@sheet_id}/values/#{a1_notation}", HTTP::Headers{"Authorization" => "Bearer #{@authenticator.token.access_token}"})
+      p response
       return get_level(table, range) if unauthorized?(response)
 
       response
@@ -34,7 +32,7 @@ module GoogleSheets
       # token, and then making sure the token is still valid that way, but I don't feel like doing
       # that right now.
       if response.status_message == "Unauthorized"
-        @authenticator.refresh_client(@client)
+        @authenticator.refresh_token
         return true
       end
 

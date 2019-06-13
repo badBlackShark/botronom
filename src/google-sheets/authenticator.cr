@@ -31,7 +31,7 @@ class GoogleSheets::Authenticator
     )
   end
 
-  def get_client
+  def init_token
     begin
       @token = OAuth2::AccessToken::Bearer.from_json(File.open(TOKEN_PATH))
     rescue e : Exception
@@ -43,16 +43,10 @@ class GoogleSheets::Authenticator
       store_token
       store_refresh_token(self.token.refresh_token)
     end
-
-    client = HTTP::Client.new("sheets.googleapis.com", tls: true)
-    self.token.authenticate(client)
-
-    client
   end
 
-  def refresh_client(client : HTTP::Client)
+  def refresh_token
     @token = @auth_client.get_access_token_using_refresh_token(File.read(REFRESH_PATH).gsub(/"/, ""))
-    self.token.authenticate(client)
     store_token
 
     nil
