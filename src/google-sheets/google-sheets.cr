@@ -16,7 +16,6 @@ module GoogleSheets
         "AllPickups!#{range}"
       end
       response = HTTP::Client.get("https://sheets.googleapis.com/v4/spreadsheets/#{@sheet_id}/values/#{a1_notation}", HTTP::Headers{"Authorization" => "Bearer #{@authenticator.token.access_token}"})
-      p response
       return get_level(table, range) if unauthorized?(response)
 
       response
