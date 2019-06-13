@@ -7,6 +7,9 @@ require "./config"
 require "./plugins/*"
 require "./middlewares/*"
 require "./srcom/*"
+require "./google-sheets/*"
+require "./utilities/*"
+require "./vectronom-levels/*"
 
 module Botronom
   class Bot

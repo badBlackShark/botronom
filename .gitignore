@@ -4,3 +4,7 @@
 /.shards/
 *.dwarf
 config.yml
+credentials.json
+token.json
+refresh.json
+.DS_STORE
