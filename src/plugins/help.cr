@@ -10,7 +10,7 @@ class Botronom::Help
 
     embed        = Discord::Embed.new
     embed.author = Discord::EmbedAuthor.new(name: bot.username, icon_url: bot.avatar_url)
-    embed.title  = "All the commands for God's Matchmaking"
+    embed.title  = "All the commands for Botronom"
 
     fields = Array(Discord::EmbedField).new
 
