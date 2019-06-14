@@ -67,7 +67,7 @@ class Run
     end
 
     fields = [Discord::EmbedField.new(
-      name: (@status == "new" ? "Potential rank: " : "Rank: ") + "#{@rank || "*Run not ranked*"}",
+      name: (@status == "new" ? "Claims to be rank " : "Rank: ") + "#{@rank || "*Run not ranked*"}",
       value: "Time: #{time}\n" \
              "Category: #{@category}\n" \
              "Player(s): #{@players.join(", ")}\n" \
@@ -77,10 +77,10 @@ class Run
 
     embed.title = case @status
                   when "verified"
-                    embed.colour = 0x00FF00
+                    embed.colour = (@rank == 1 ? 0xffd700 || 0x00ff00)
                     "A run has been verified!"
                   when "rejected"
-                    embed.colour = 0xFF0000
+                    embed.colour = 0xff0000
                     fields << Discord::EmbedField.new(name: "Rejection reason", value: @rej_reason.not_nil!)
                     "A run has been rejected!"
                   when "new"

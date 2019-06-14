@@ -95,8 +95,7 @@ class Botronom::Srcom
           # not_nil! because the compiler things cat_runs.index(new_run) can *technically* return nil
           new_run.rank = cat_runs.index(new_run).not_nil! + 1
         end
-        # For some reason the `getter!` wasn't enough, needs another `not_nil!`
-        client.create_message(@channel.not_nil!, "", new_run.to_embed)
+        client.create_message(self.channel, "", new_run.to_embed)
       end
       @runs = all_runs
       rank_runs
