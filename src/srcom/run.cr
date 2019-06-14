@@ -77,7 +77,7 @@ class Run
 
     embed.title = case @status
                   when "verified"
-                    embed.colour = (@rank == 1 ? 0xffd700 : 0x00ff00)
+                    embed.colour = (@rank == 1 ? 0xffd700 : 0x00ff00).to_u32
                     "A run has been verified!"
                   when "rejected"
                     embed.colour = 0xff0000
