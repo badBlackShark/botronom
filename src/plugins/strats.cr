@@ -32,7 +32,6 @@ class Botronom::Strats
       return
     end
     raw = @sheet.get_level(category, Vectronom::LevelList.levels[level]).body
-    puts "embed"
     client.create_message(payload.channel_id, "", Vectronom::Level.from_json(JSON.parse(raw)).to_embed)
   end
 end
