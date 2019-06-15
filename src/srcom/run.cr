@@ -1,28 +1,30 @@
 require "json"
 
 class Run
-  getter id : String
-  getter link : String
-  getter time : Time::Span
-  getter category : String
-  getter players : Array(String)
-  getter video : String
-  getter status : String
-  getter comment : String
+  getter id         : String
+  getter link       : String
+  getter time       : Time::Span
+  getter category   : Category
+  getter players    : Array(String)
+  getter video      : String
+  getter status     : String
+  getter comment    : String
   getter rej_reason : String?
-  property rank : Int32?
+  getter level      : Level?
+  property rank     : Int32?
 
   def initialize(
-    @id : String,
-    @link : String,
-    @time : Time::Span,
-    @category : String,
-    @players : Array(String),
-    @video : String,
-    @status : String,
-    @comment : String,
+    @id         : String,
+    @link       : String,
+    @time       : Time::Span,
+    @category   : Category,
+    @players    : Array(String),
+    @video      : String,
+    @status     : String,
+    @comment    : String,
     @rej_reason : String?,
-    @rank : Int32?
+    @level      : Level?,
+    @rank       : Int32?
   )
   end
 
@@ -31,23 +33,33 @@ class Run
     video = (raw_data["videos"]["text"]? || raw_data["videos"]["links"][0]["uri"]).as_s
     status = raw_data["status"]["status"].as_s
 
-    rej_reason = case status
-                 when "rejected"
-                   raw_data["status"]["reason"].as_s
-                 else
-                   nil
-                 end
+    rej_reason = if status == "rejected"
+      raw_data["status"]["reason"].as_s
+    else
+      nil
+    end
+
+    # I hate having to do this this way, but I think I have to. Unfortunately srcom's types aren't
+    # consistent here, as the data is either an empty Array or a Hash. So I can't check if "id" is
+    # present because that fails on an Array, I can't use as_h (or as_a) for the same reason, and I
+    # can't use is_a? because it's JSON::Any either way. Thank you srcom :)
+    level = begin
+      Level.from_json(raw_data["level"]["data"].as_h)
+    rescue e : Exception
+      nil
+    end
 
     return Run.new(
       raw_data["id"].as_s,
       raw_data["weblink"].as_s,
       (time.as_i? || time.as_f? || raise "Invalid field: #{time}").to_f.seconds,
-      raw_data["category"]["data"]["name"].as_s,
+      Category.from_json(raw_data["category"]["data"]),
       raw_data["players"]["data"].as_a.map { |p| p["names"]["international"].as_s },
       video,
       status,
       raw_data["comment"].as_s? || "*No comment given*",
       rej_reason,
+      level,
       nil
     )
   end
@@ -69,7 +81,7 @@ class Run
     fields = [Discord::EmbedField.new(
       name: (@status == "new" ? "Claims to be rank " : "Rank: ") + "#{@rank || "*Run not ranked*"}",
       value: "Time: #{time}\n" \
-             "Category: #{@category}\n" \
+             "Category: #{@category.name}\n" \
              "Player(s): #{@players.join(", ")}\n" \
              "Video: #{@video}\n" \
              "Comment: #{@comment}"

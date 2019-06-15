@@ -15,7 +15,7 @@ class Botronom::Help
     fields = Array(Discord::EmbedField).new
 
     fields << Discord::EmbedField.new(name: ".info", value: "Displays some info about the development of this bot.")
-    fields << Discord::EmbedField.new(name: ".wr <category>", value: "Shows you the current world record in <category>.")
+    fields << Discord::EmbedField.new(name: ".wr <category> <level>", value: "Shows you the current world record in <category>, uses the IL if <level> was provided.")
     fields << Discord::EmbedField.new(name: ".strats <category> <level>", value: "Shows you the current strats for <level> in <category>. Level names are fuzzy matched.")
 
     embed.fields = fields

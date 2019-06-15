@@ -7,6 +7,8 @@ module Utilities
 
     # Very basic adaptation of https://github.com/seamusabshere/fuzzy_match
     def find(needle : String, min : Float? = nil)
+      return "" if needle.empty?
+
       best_match = ""
       best_distance = 0.0
 

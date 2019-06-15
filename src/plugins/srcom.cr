@@ -10,13 +10,14 @@ class Botronom::Srcom
   getter ranked_runs = Hash(String, Array(Run)).new
 
   # Only used for testing
-  def initialize(@api : SrcomApi, @runs : Array(Run), @categories : Array(Category), @channel : Discord::Snowflake)
+  def initialize(@api : SrcomApi, @runs : Array(Run), @categories : Array(Category), @channel : Discord::Snowflake, @matcher : Utilities::FuzzyMatch)
   end
 
   def initialize
-    @api  = SrcomApi.new("369p9931") # Vectronom
-    @runs = JSON.parse(@api.get_runs.body)["data"].as_a.map { |raw| Run.from_json(raw) }
+    @api        = SrcomApi.new("369p9931") # Vectronom
+    @runs       = JSON.parse(@api.get_runs.body)["data"].as_a.map { |raw| Run.from_json(raw) }
     @categories = JSON.parse(@api.get_categories.body)["data"].as_a.map { |raw| Category.from_json(raw) }
+    @matcher    = Utilities::FuzzyMatch.new(Vectronom::LevelList.levels.keys)
 
     rank_runs
 
@@ -31,21 +32,41 @@ class Botronom::Srcom
     }
   )]
   def wr(payload, ctx)
-    category = ctx[ArgumentChecker::Result].args.join(" ")
-    wr = ranked_runs.find { |k, v| k.downcase == category.downcase }
-    unless wr
-      client.create_message(payload.channel_id, "No category \"#{category}\" was found. Are you sure it's spelled correctly?")
+    raw = ctx[ArgumentChecker::Result].args.join(" ").downcase
+
+    category = raw.scan(/#{@categories.sort_by { |c| c.name.size }.reverse.map { |c| c.name.downcase }.join("|")}/).[0]?.try &.[0]
+    unless category
+      client.create_message(payload.channel_id, "I couldn't find that category. Valid categories are: #{@categories.map { |c| c.name }.uniq.join(", ")}.")
       return
     end
 
-    run = wr[1].first?
-    unless run
+    level = @matcher.find(raw.sub(category, "").strip)
+
+    contenders = if level.empty?
+      cat = @categories.find { |c| c.name.downcase == category && c.type == "per-game" }
+      unless cat
+        client.create_message(payload.channel_id, "That category doesn't appear to exist for full game.")
+        return
+      end
+      @ranked_runs[cat.id]
+    else
+      cat = @categories.find { |c| c.name.downcase == category && c.type == "per-level" }
+      unless cat
+        client.create_message(payload.channel_id, "That category doesn't appear to exist for ILs.")
+        return
+      end
+      all_il_runs = @ranked_runs[cat.id]
+      all_il_runs.select { |run| run.level.try &.name == level  }
+    end
+
+    wr = contenders.first?
+    unless wr
       client.create_message(payload.channel_id, "There are no runs in this category.")
       return
     end
 
-    embed = run.to_embed
-    embed.title  = "The world record for #{wr[0]}"
+    embed = wr.to_embed
+    embed.title  = "The world record for #{wr.category.name}#{" - #{level}" unless level.empty?}"
     embed.colour = 0xFFD700
 
     client.create_message(payload.channel_id, "", embed)
@@ -67,19 +88,43 @@ class Botronom::Srcom
   def rank_runs
     @categories.each do |cat|
       i = 1
-      unordered = @runs.reject { |r| r.status != "verified" || r.category != cat.name }
+      unordered = @runs.reject { |r| r.status != "verified" || r.category.id != cat.id }
 
-      ordered = Array(Run).new
-      unordered.sort_by { |r| r.time }.each do |run|
-        obsolete = run.players.select { |player| ordered.find { |r| r.players.includes?(player) } }.size == run.players.size
-        unless obsolete
-          ordered << run
-          run.rank = i
-          i += 1
+      if cat.type == "per-level"
+        @ranked_runs[cat.id] = Array(Run).new
+
+        levels = unordered.map { |r| r.level.try &.id }
+        levels.each do |level|
+          i = 1
+
+          unordered_level = unordered.select { |r| r.level.try &.id == level }
+
+          ordered = Array(Run).new
+          unordered_level.sort_by { |r| r.time }.each do |run|
+            obsolete = run.players.select { |player| ordered.find { |r| r.players.includes?(player) } }.size == run.players.size
+            unless obsolete
+              ordered << run
+              run.rank = i
+              i += 1
+            end
+          end
+
+          @ranked_runs[cat.id] += ordered
         end
+      else
+        ordered = Array(Run).new
+        unordered.sort_by { |r| r.time }.each do |run|
+          obsolete = run.players.select { |player| ordered.find { |r| r.players.includes?(player) } }.size == run.players.size
+          unless obsolete
+            ordered << run
+            run.rank = i
+            i += 1
+          end
+        end
+
+        @ranked_runs[cat.id] = ordered
       end
 
-      @ranked_runs[cat.name] = ordered
     end
   end
 
@@ -89,10 +134,14 @@ class Botronom::Srcom
       all_runs.reject { |run| !@runs.find { |r| r.id == run.id && r.status == run.status }.nil? }.each do |new_run|
         # This is to show what the potential rank of a newly submitted run would be, should it get verified.
         if new_run.status == "new" || new_run.status == "verified"
-          cat_runs = @ranked_runs[new_run.category].dup
+          cat_runs = if new_run.level
+            @ranked_runs[new_run.category.id].select { |run| run.level == new_run.level }.dup
+          else
+            @ranked_runs[new_run.category.id].dup
+          end
           cat_runs << new_run
           cat_runs.sort_by! { |run| run.time }
-          # not_nil! because the compiler things cat_runs.index(new_run) can *technically* return nil
+          # not_nil! because the compiler thinks cat_runs.index(new_run) can *technically* return nil
           new_run.rank = cat_runs.index(new_run).not_nil! + 1
         end
         client.create_message(self.channel, "", new_run.to_embed)
