@@ -73,6 +73,52 @@ class Botronom::Srcom
     client.create_message(payload.channel_id, "", embed)
   end
 
+  @[Discord::Handler(
+    event: :message_create,
+    middleware: {
+      Command.new("runs"),
+      ArgumentChecker.new(0)
+    }
+  )]
+  def runs(payload, ctx)
+    player = ctx[ArgumentChecker::Result].args.join(" ")
+    player = payload.author.username if player.empty?
+    # Every player that has done any run in any category.
+    players = @ranked_runs.values.map { |runs| runs.map { |run| run.players } }.flatten.uniq
+    player_finder = Utilities::FuzzyMatch.new(players)
+
+    player = player_finder.find(player)
+    if player.empty?
+      client.create_message(payload.channel_id, "It doesn't seem like that player has run this game. Players that have submitted a run: #{players.join(", ")}")
+      return
+    end
+
+
+    player_runs = @ranked_runs.values.map { |runs| runs.select { |run| run.players.includes?(player) } }.flatten
+
+    # We do slices to not break the character limit.
+    player_runs.sort_by { |r| "#{r.category.name}#{" - #{r.level.try &.name}" if r.level}" }.each_slice(15) do |runs_subset|
+      embed = Discord::Embed.new
+      embed.title  = "Every run of #{player}"
+      embed.colour = 0xb21e7b
+
+      fields = Array(Discord::EmbedField).new
+
+      runs_subset.each do |run|
+        value = String.build do |str|
+          str << "Time: #{run.time_string}\n"
+          str << "Rank: #{run.rank}"
+        end
+
+        fields << Discord::EmbedField.new(name: "#{run.category.name}#{" - #{run.level.try &.name}" if run.level}: #{run.link}\n", value: value)
+      end
+      embed.fields = fields
+
+      client.create_message(payload.channel_id, "", embed)
+    end
+
+  end
+
 
   @[Discord::Handler(
     event: :guild_create
@@ -112,6 +158,8 @@ class Botronom::Srcom
 
           @ranked_runs[cat.id] += ordered
         end
+
+        @ranked_runs[cat.id].uniq!
       else
         ordered = Array(Run).new
         unordered.sort_by { |r| r.time }.each do |run|

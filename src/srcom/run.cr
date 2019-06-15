@@ -69,18 +69,9 @@ class Run
 
     embed.description = @link
 
-    time = String.build do |str|
-      str << "#{@time.hours}:" unless @time.hours == 0
-      str << "0" if @time.minutes < 10
-      str << "#{@time.minutes}:"
-      str << "0" if @time.seconds < 10
-      str << "#{@time.seconds}."
-      str << "#{@time.milliseconds}".ljust(3, '0')
-    end
-
     fields = [Discord::EmbedField.new(
       name: (@status == "new" ? "Claims to be rank " : "Rank: ") + "#{@rank || "*Run not ranked*"}",
-      value: "Time: #{time}\n" \
+      value: "Time: #{time_string}\n" \
              "Category: #{@category.name}#{" - #{@level.try &.name}" if @level}\n" \
              "Player(s): #{@players.join(", ")}\n" \
              "Video: #{@video}\n" \
@@ -103,5 +94,16 @@ class Run
     embed.fields = fields
 
     embed
+  end
+
+  def time_string
+    String.build do |str|
+      str << "#{@time.hours}:" unless @time.hours == 0
+      str << "0" if @time.minutes < 10
+      str << "#{@time.minutes}:"
+      str << "0" if @time.seconds < 10
+      str << "#{@time.seconds}."
+      str << "#{@time.milliseconds}".ljust(3, '0')
+    end
   end
 end
