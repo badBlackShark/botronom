@@ -34,6 +34,7 @@ class Botronom::Srcom
   def wr(payload, ctx)
     raw = ctx[ArgumentChecker::Result].args.join(" ").downcase
 
+    # Sorting in case one category is a substring of another, so it matches the longer one (e.g. any% vs any% 200)
     category = raw.scan(/#{@categories.sort_by { |c| c.name.size }.reverse.map { |c| c.name.downcase }.join("|")}/).[0]?.try &.[0]
     unless category
       client.create_message(payload.channel_id, "I couldn't find that category. Valid categories are: #{@categories.map { |c| c.name }.uniq.join(", ")}.")

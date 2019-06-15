@@ -81,7 +81,7 @@ class Run
     fields = [Discord::EmbedField.new(
       name: (@status == "new" ? "Claims to be rank " : "Rank: ") + "#{@rank || "*Run not ranked*"}",
       value: "Time: #{time}\n" \
-             "Category: #{@category.name}\n" \
+             "Category: #{@category.name}#{" - #{@level.try &.name}" if @level}\n" \
              "Player(s): #{@players.join(", ")}\n" \
              "Video: #{@video}\n" \
              "Comment: #{@comment}"
