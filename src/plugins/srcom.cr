@@ -32,42 +32,31 @@ class Botronom::Srcom
     }
   )]
   def wr(payload, ctx)
-    raw = ctx[ArgumentChecker::Result].args.join(" ").downcase
+    wr = find_top(1, ctx[ArgumentChecker::Result].args.join(" ").downcase)
 
-    # Sorting in case one category is a substring of another, so it matches the longer one (e.g. any% vs any% 200)
-    category = raw.scan(/#{@categories.sort_by { |c| c.name.size }.reverse.map { |c| c.name.downcase }.join("|")}/).[0]?.try &.[0]
-    unless category
-      client.create_message(payload.channel_id, "I couldn't find that category. Valid categories are: #{@categories.map { |c| c.name }.uniq.join(", ")}.")
-      return
-    end
-
-    level = @matcher.find(raw.sub(category, "").strip)
-
-    contenders = if level.empty?
-      cat = @categories.find { |c| c.name.downcase == category && c.type == "per-game" }
-      unless cat
+    if wr.is_a?(Symbol)
+      case wr
+      when :no_cat
+        client.create_message(payload.channel_id, "I couldn't find that category. Valid categories are: #{@categories.map { |c| c.name }.uniq.join(", ")}.")
+        return
+      when :no_fg
         client.create_message(payload.channel_id, "That category doesn't appear to exist for full game.")
         return
-      end
-      @ranked_runs[cat.id]
-    else
-      cat = @categories.find { |c| c.name.downcase == category && c.type == "per-level" }
-      unless cat
+      else
         client.create_message(payload.channel_id, "That category doesn't appear to exist for ILs.")
         return
       end
-      all_il_runs = @ranked_runs[cat.id]
-      all_il_runs.select { |run| run.level.try &.name == level  }
     end
 
-    wr = contenders.first?
-    unless wr
+    unless wr.first?
       client.create_message(payload.channel_id, "There are no runs in this category.")
       return
     end
 
+    wr = wr.first
+
     embed = wr.to_embed
-    embed.title  = "The world record for #{wr.category.name}#{" - #{level}" unless level.empty?}"
+    embed.title  = "The world record for #{wr.category.name}#{" - #{wr.level.try &.name}" if wr.level}"
     embed.colour = 0xFFD700
 
     client.create_message(payload.channel_id, "", embed)
@@ -76,8 +65,65 @@ class Botronom::Srcom
   @[Discord::Handler(
     event: :message_create,
     middleware: {
+      Command.new("top"),
+      ArgumentChecker.new(2)
+    }
+  )]
+  def top(payload, ctx)
+    n = ctx[ArgumentChecker::Result].args.first.to_i?
+
+    unless n && n >= 1 && n <= 10
+      client.create_message(payload.channel_id, "Your first argument needs to be an integer between 1 and 10.")
+      return
+    end
+
+    topn = find_top(n, ctx[ArgumentChecker::Result].args[1..-1].join(" ").downcase)
+
+    if topn.is_a?(Symbol)
+      case topn
+      when :no_cat
+        client.create_message(payload.channel_id, "I couldn't find that category. Valid categories are: #{@categories.map { |c| c.name }.uniq.join(", ")}.")
+        return
+      when :no_fg
+        client.create_message(payload.channel_id, "That category doesn't appear to exist for full game.")
+        return
+      else
+        client.create_message(payload.channel_id, "That category doesn't appear to exist for ILs.")
+        return
+      end
+    end
+
+    if topn.empty?
+      client.create_message(payload.channel_id, "There are no runs in this category.")
+      return
+    end
+
+    embed = Discord::Embed.new
+    fields = Array(Discord::EmbedField).new
+
+    topn.each do |run|
+      embed.title = "The top #{topn.size == 1 ? "run" : "#{topn.size} runs"} in #{run.category.name}#{" - #{run.level.try &.name}" if run.level}"
+      embed.description = "Couldn't display #{n} runs because there #{topn.size == 1 ? "is only 1 run" : "are only #{topn.size} runs"} on that board." if n > topn.size
+      embed.colour = 0xb21e7b
+
+      value = String.build do |str|
+        str << "#{run.players.size == 1 ? "Player: " : "Players: "}#{run.players.join(", ")}\n"
+        str << "Time: #{run.time_string}\n"
+        str << "Link: #{run.link}"
+      end
+
+      fields << Discord::EmbedField.new(name: "Rank #{run.rank}", value: value)
+    end
+
+    embed.fields = fields
+    client.create_message(payload.channel_id, "", embed)
+  end
+
+  @[Discord::Handler(
+    event: :message_create,
+    middleware: {
       Command.new("runs"),
-      ArgumentChecker.new(0)
+      ArgumentChecker.new(0) # Just so I get the arg splitting for free :)
     }
   )]
   def runs(payload, ctx)
@@ -116,9 +162,7 @@ class Botronom::Srcom
 
       client.create_message(payload.channel_id, "", embed)
     end
-
   end
-
 
   @[Discord::Handler(
     event: :guild_create
@@ -127,6 +171,29 @@ class Botronom::Srcom
     # We can do this because the bot is only in one server
     @channel = (client.get_guild_channels(guild_id: payload.id).find { |c| c.name.try(&.downcase) == "speedrunning" } ||
                client.create_guild_channel(guild_id: payload.id, name: "speedrunning", type: Discord::ChannelType::GuildText, bitrate: nil, user_limit: nil)).id
+  end
+
+  private def find_top(n : Int32, raw_args : String)
+    # Sorting in case one category is a substring of another, so it matches the longer one (e.g. any% vs any% 200)
+    category = raw_args.scan(/#{@categories.sort_by { |c| c.name.size }.reverse.map { |c| c.name.downcase }.join("|")}/).[0]?.try &.[0]
+    return :no_cat unless category
+
+    level = @matcher.find(raw_args.sub(category, "").strip)
+
+    contenders = if level.empty?
+      cat = @categories.find { |c| c.name.downcase == category && c.type == "per-game" }
+      return :no_fg unless cat
+
+      @ranked_runs[cat.id]
+    else
+      cat = @categories.find { |c| c.name.downcase == category && c.type == "per-level" }
+      return :no_il unless cat
+
+      all_il_runs = @ranked_runs[cat.id]
+      all_il_runs.select { |run| run.level.try &.name == level  }
+    end
+
+    contenders[0..n-1]
   end
 
   # Establishes the order runs are in on the srcom boards, ranked by time, with the same rules
