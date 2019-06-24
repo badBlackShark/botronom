@@ -18,7 +18,6 @@ class Botronom::Info
           "**[discordcr](https://github.com/meew0/discordcr)** *by meew0*
           **[discordcr-middleware](https://github.com/z64/discordcr-middleware)** *by z64*
           **[discordcr-plugin](https://github.com/z64/discordcr-plugin)** *by z64*
-          **[crest](https://github.com/mamantoha/crest)** *by mamantoha*
           **[tasker](https://github.com/spider-gazelle/tasker)** *by spider-gazelle*"
       )
     ]
