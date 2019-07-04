@@ -24,7 +24,7 @@ module SRL
     end
 
     def live_races
-      JSON.parse(HTTP::Client.get(BASE_URL + "races").body)["races"].as_a.map { |race| LiveRace.from_json(race) }#.select { |lr| lr.game.abbrev == @game }
+      JSON.parse(HTTP::Client.get(BASE_URL + "races").body)["races"].as_a.map { |race| LiveRace.from_json(race) }.select { |lr| lr.game.abbrev == @game }
     end
 
     def single_race(id : String)
