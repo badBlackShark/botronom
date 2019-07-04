@@ -10,6 +10,7 @@ require "./srcom/*"
 require "./google-sheets/*"
 require "./utilities/*"
 require "./vectronom-levels/*"
+require "./srl/*"
 
 module Botronom
   class Bot
