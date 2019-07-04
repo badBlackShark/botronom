@@ -19,6 +19,8 @@ class Botronom::Help
     fields << Discord::EmbedField.new(name: ".wr <category> <level>", value: "Shows you the current world record in <category>, uses the IL if <level> was provided.")
     fields << Discord::EmbedField.new(name: ".top <n> <category> <level>", value: "Shows you the top <n> runs in <category>, uses the IL if <level> was provided. Can't show more than 10 runs.")
     fields << Discord::EmbedField.new(name: ".runs <player>", value: "Shows you all runs for <player>. If not given, defaults to your Discord username. Player names are fuzzy matched.")
+    fields << Discord::EmbedField.new(name: ".leaderboard", value: "Shows you the current SRL leaderboard.")
+    fields << Discord::EmbedField.new(name: ".last <n>", value: "Shows you the last <n> races in short form. Shows the last race in detail if <n> is omitted.")
 
     embed.fields = fields
     embed.colour = 0xb21e7b
