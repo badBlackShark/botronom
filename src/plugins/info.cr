@@ -15,7 +15,7 @@ class Botronom::Info
     embed.fields      = [Discord::EmbedField.new(
         name: "I was built using these packages",
         value:
-          "**[discordcr](https://github.com/meew0/discordcr)** *by meew0*\n"\
+          "**[discordcr](https://github.com/z64/discordcr)** *by z64*\n"\
           "**[discordcr-middleware](https://github.com/z64/discordcr-middleware)** *by z64*\n"\
           "**[discordcr-plugin](https://github.com/z64/discordcr-plugin)** *by z64*\n"\
           "**[tasker](https://github.com/spider-gazelle/tasker)** *by spider-gazelle*\n"\
