@@ -16,6 +16,12 @@ dependencies:
   # Scheduling requests
   tasker:
     github: spider-gazelle/tasker
+  # PostgreSQL support
+  pg:
+    github: will/crystal-pg
+  # DB interface
+  db:
+    github: crystal-lang/crystal-db
 
 targets:
   botronom:

@@ -43,6 +43,7 @@ class Run
     # consistent here, as the data is either an empty Array or a Hash. So I can't check if "id" is
     # present because that fails on an Array, I can't use as_h (or as_a) for the same reason, and I
     # can't use is_a? because it's JSON::Any either way. Thank you srcom :)
+    # Nvm, this can probably done with .as_h? || as_a. I guess that's a TODO
     level = begin
       Level.from_json(raw_data["level"]["data"].as_h)
     rescue e : Exception

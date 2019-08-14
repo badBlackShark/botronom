@@ -1,28 +1,59 @@
 class Botronom::Help
   include Discord::Plugin
 
+  def initialize
+    @plugin_list = PluginList.from_yaml(File.read("./src/commands.yml"))
+  end
+
   @[Discord::Handler(
     event: :message_create,
-    middleware: Command.new("help")
+    middleware: {
+      Command.new("help"),
+      ArgumentChecker.new(0, 1)
+    }
   )]
-  def help(payload, _ctx)
+  def help(payload, ctx)
     bot = client.cache.try &.resolve_current_user || raise "Cache unavailable"
+    guild = client.cache.try &.resolve_channel(payload.channel_id).guild_id
+    cmd = ctx[ArgumentChecker::Result].args.first?
 
-    embed        = Discord::Embed.new
-    embed.author = Discord::EmbedAuthor.new(name: bot.username, icon_url: bot.avatar_url)
-    embed.title  = "All the commands for Botronom"
+    embed      = Discord::Embed.new
+    perm_level = Permissions.permission_level(payload.author.id, guild)
 
-    fields = Array(Discord::EmbedField).new
+    if cmd
+      command = @plugin_list.single_command(cmd, perm_level, guild)
+      if command.is_a?(Symbol)
+        case command
+        when :not_found
+          msg = client.create_message(payload.channel_id, "I couldn't find that command. Use the help command to see which commands exist.")
+          sleep 5
+          client.delete_message(payload.channel_id, msg.id)
+          client.delete_message(payload.channel_id, payload.id)
+          return
+        when :no_perms
+          msg = client.create_message(payload.channel_id, "You don't have the necessary permissions to use this command.")
+          sleep 5
+          client.delete_message(payload.channel_id, msg.id)
+          client.delete_message(payload.channel_id, payload.id)
+          return
+        end
+      else
+        embed.title       = command[0]
+        embed.description = command[1]
+      end
+    else
+      embed.title       = "All the commands for Botronom you can use."
+      embed.description = "Required arguments surrounded by `<>`, optional arguments surrounded by `[]`."
+      embed.fields      = @plugin_list.to_embed_fields(perm_level, guild)
 
-    fields << Discord::EmbedField.new(name: ".info", value: "Displays some info about the development of this bot.")
-    fields << Discord::EmbedField.new(name: ".strats <category> <level>", value: "Shows you the current strats for <level> in <category>. Level names are fuzzy matched.")
-    fields << Discord::EmbedField.new(name: ".wr <category> <level>", value: "Shows you the current world record in <category>, uses the IL if <level> was provided.")
-    fields << Discord::EmbedField.new(name: ".top <n> <category> <level>", value: "Shows you the top <n> runs in <category>, uses the IL if <level> was provided. Can't show more than 10 runs.")
-    fields << Discord::EmbedField.new(name: ".runs <player>", value: "Shows you all runs for <player>. If not given, defaults to your Discord username. Player names are fuzzy matched.")
-    fields << Discord::EmbedField.new(name: ".leaderboard", value: "Shows you the current SRL leaderboard.")
-    fields << Discord::EmbedField.new(name: ".last <n>", value: "Shows you the last <n> races in short form. Shows the last race in detail if <n> is omitted.")
+      case perm_level
+      when PermissionLevel::Moderator
+        embed.footer = Discord::EmbedFooter.new(text: "Staff commands are printed italics.")
+      when PermissionLevel::Creator
+        embed.footer = Discord::EmbedFooter.new(text: "Staff commands are printed italics, creator commands are printed bold.")
+      end
+    end
 
-    embed.fields = fields
     embed.colour = 0xb21e7b
 
     client.create_message(payload.channel_id, "", embed)
@@ -33,6 +64,6 @@ class Botronom::Help
   )]
   def set_game(payload)
     # For some reason I need to send this 0, otherwise Discord refuses to update the game.
-    client.status_update(game: Discord::GamePlaying.new("Vectronom | .help", 0.to_i64))
+    client.status_update(game: Discord::GamePlaying.new(".help, among other things.", 0.to_i64))
   end
 end

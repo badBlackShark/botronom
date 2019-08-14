@@ -3,23 +3,30 @@ require "discordcr"
 require "discordcr-plugin"
 require "discordcr-middleware"
 
-require "./config"
-require "./plugins/*"
-require "./middlewares/*"
-require "./srcom/*"
-require "./google-sheets/*"
-require "./utilities/*"
-require "./vectronom-levels/*"
 require "./srl/*"
+require "./srcom/*"
+require "./config"
+require "./helpers/*"
+require "./plugins/*"
+require "./utilities/*"
+require "./feedback/*"
+require "./middlewares/*"
+require "./google-sheets/*"
+require "./vectronom-levels/*"
 
 module Botronom
+  # Stuff used across all modules, especially heavily used emojis.
+  CHECKMARK = "\u2705"
+  CROSSMARK = "\u274C"
+
   class Bot
-    getter client : Discord::Client
+    getter client    : Discord::Client
     getter client_id : UInt64
-    getter cache : Discord::Cache
+    getter cache     : Discord::Cache
+    getter db        : Db
     delegate run, stop, to: client
 
-    def initialize(token : String, @client_id : UInt64, shard_id, num_shards)
+    def initialize(token : String, @client_id : UInt64, @db : Db, shard_id, num_shards)
       @client = Discord::Client.new(token: "Bot #{token}", client_id: @client_id,
         shard: {shard_id: shard_id, num_shards: num_shards})
       @cache = Discord::Cache.new(@client)
@@ -28,7 +35,13 @@ module Botronom
     end
 
     def register_plugins
-      Discord::Plugin.plugins.each { |plugin| client.register(plugin) }
+      # We need to register the plugin selector first, because the setup of other stuff depends on it.
+      # We only want to set certain things (like creating channels) up if a plugin is enabled in
+      # the first place. If we don't register the plugin selector first we get a missing hash key.
+      plugin_selector = Discord::Plugin.plugins.find { |plugin| plugin.is_a?(Botronom::PluginSelector) }.not_nil!
+      client.register(plugin_selector)
+
+      (Discord::Plugin.plugins - [plugin_selector]).each { |plugin| client.register(plugin) }
     end
   end
 
@@ -45,11 +58,11 @@ module Botronom
     end
   end
 
-  def self.run(config : Config)
+  def self.run(config : Config, db : Db)
     @@config = config
 
     config.shard_count.times do |id|
-      bot = Bot.new(config.token, config.client_id, id, config.shard_count)
+      bot = Bot.new(config.token, config.client_id, db, id, config.shard_count)
       @@shards << bot
       spawn { bot.run }
     end

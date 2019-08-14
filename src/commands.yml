@@ -1,0 +1,149 @@
+plugins:
+  General:
+    help:
+      name: 'help'
+      args: null
+      opt_args: '[command]'
+      description: 'Shows you all the commands you can use. If [command] is given, shows you what exactly that command does. Command names are fuzzy matched.'
+      perm_level: 0
+    info:
+      name: 'info'
+      args: null
+      opt_args: null
+      description: 'Displays some info about the development of this bot.'
+      perm_level: 0
+
+  Strats:
+    strats:
+      name: 'strats'
+      args: '<category> <level>'
+      opt_args: null
+      description: 'Shows you the current strats for <level> in <category>. Level names are fuzzy matched.'
+      perm_level: 0
+
+  srcom:
+    wr:
+      name: 'wr'
+      args: '<category>'
+      opt_args: '[level]'
+      description: 'Shows you the current world record in <category>, uses the IL if [level] was provided.'
+      perm_level: 0
+    top:
+      name: 'top'
+      args: '<n> <category>'
+      opt_args: '[level]'
+      description: 'Shows you the top <n> runs in <category>, uses the IL if [level] was provided. Can''t show more than 10 runs.'
+      perm_level: 0
+    runs:
+      name: 'runs'
+      args: null
+      opt_args: '[player]'
+      description: 'Shows you all runs for [player]. If not given, defaults to your Discord username. Player names are fuzzy matched.'
+      perm_level: 0
+
+  SRL:
+    leaderboard:
+      name: 'leaderboard'
+      args: null
+      opt_args: null
+      description: 'Shows you the current SRL leaderboard.'
+      perm_level: 0
+    last:
+      name: 'last'
+      args: null
+      opt_args: '[n]'
+      description: 'Shows you the last [n] races in short form. Shows the last race in detail if [n] is omitted.'
+      perm_level: 0
+
+  Logging:
+    logchannel:
+      name: 'logChannel'
+      args: null
+      opt_args: null
+      description: 'Shows you where the bot logs events.'
+      perm_level: 0
+    setlogchannel:
+      name: 'setLogChannel'
+      args: '<channel>'
+      opt_args: null
+      description: 'Sets the log channel for the bot to <channel>, where <channel> needs to be a channel mention.'
+      perm_level: 1
+
+  'Plugin Selection':
+    plugins:
+      name: 'plugins'
+      args: null
+      opt_args: null
+      description: 'Shows you all the plugins that can be toggled on and off.'
+      perm_level: 1
+    disable:
+      name: 'disable'
+      args: '<plugin>'
+      opt_args: null
+      description: 'Disables <plugin> for the current server.'
+      perm_level: 1
+    enable:
+      name: 'enable'
+      args: '<plugin>'
+      opt_args: null
+      description: 'Enables <plugin> for the current server.'
+      perm_level: 1
+
+  Prefixes:
+    prefix:
+      name: 'prefix'
+      args: null
+      opt_args: null
+      description: 'Shows you the prefix for the current server.'
+      perm_level: 0
+    '.setprefix':
+      name: '.setPrefix'
+      args: '<prefix>'
+      opt_args: null
+      description: 'Sets the prefix for the current server to <prefix>. The prefix cannot contain any spaces.'
+      perm_level: 1
+    '.resetprefix':
+      name: '.resetPrefix'
+      args: null
+      opt_args: null
+      description: 'Resets the prefix for the current server to `.`'
+      perm_level: 1
+
+  Feedback:
+    bug:
+      name: 'bug'
+      args: '<content>'
+      opt_args: null
+      description: 'Creates a new bug report with <content>. If an image is attached to the message, it will be part of the bug report.'
+      perm_level: 0
+    suggest:
+      name: 'suggest'
+      args: '<content>'
+      opt_args: null
+      description: 'Creates a new suggestion with <content> that can be voted on. If an image is attached to the message, it will be part of the suggestion.'
+      perm_level: 0
+    note:
+      name: 'note'
+      args: '<id> <content>'
+      opt_args: null
+      description: 'Creates a note on the submission (bug or suggestion) with ID <id>, containing <content>. Images can not be attached.'
+      perm_level: 0
+    resolve:
+      name: 'resolve'
+      args: '<id>'
+      opt_args: '[content]'
+      description: 'Marks the submission with ID <id> as resolved. If [content] is provided, a note with [content] will be created on the submission.'
+      perm_level: 1
+    setsuggestionchannel:
+      name: 'setSuggestionChannel'
+      args: '<channel>'
+      opt_args: null
+      description: "Sets the channel where suggestions are posted to <channel>. Old suggestions can still get notes and be marked as resolved, as long as their messages aren't deleted."
+      perm_level: 1
+    setbugchannel:
+      name: 'setBugChannel'
+      args: '<channel>'
+      opt_args: null
+      description: "Sets the channel where bug reports are posted to <channel>. Old bug reports can still get notes and be marked as resolved, as long as their messages aren't deleted."
+      perm_level: 1
+

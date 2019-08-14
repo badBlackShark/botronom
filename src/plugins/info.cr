@@ -15,10 +15,12 @@ class Botronom::Info
     embed.fields      = [Discord::EmbedField.new(
         name: "I was built using these packages",
         value:
-          "**[discordcr](https://github.com/meew0/discordcr)** *by meew0*
-          **[discordcr-middleware](https://github.com/z64/discordcr-middleware)** *by z64*
-          **[discordcr-plugin](https://github.com/z64/discordcr-plugin)** *by z64*
-          **[tasker](https://github.com/spider-gazelle/tasker)** *by spider-gazelle*"
+          "**[discordcr](https://github.com/meew0/discordcr)** *by meew0*\n"\
+          "**[discordcr-middleware](https://github.com/z64/discordcr-middleware)** *by z64*\n"\
+          "**[discordcr-plugin](https://github.com/z64/discordcr-plugin)** *by z64*\n"\
+          "**[tasker](https://github.com/spider-gazelle/tasker)** *by spider-gazelle*\n"\
+          "**[crystal-db](https://github.com/crystal-lang/crystal-db)** *by crystal-lang*\n"\
+          "**[crystal-pg](https://github.com/will/crystal-pg)** *by will*"
       )
     ]
 

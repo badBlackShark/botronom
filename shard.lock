@@ -8,6 +8,10 @@ shards:
     github: kostya/cron_parser
     version: 0.2.0
 
+  db:
+    github: crystal-lang/crystal-db
+    version: 0.5.1
+
   discordcr:
     github: meew0/discordcr
     commit: 1d40f5fa0c9069a817ddbb3daf26782607d69d7d
@@ -19,6 +23,10 @@ shards:
   discordcr-plugin:
     github: z64/discordcr-plugin
     commit: f444ac6b3ca58b600a4066427b3126c70409d5fd
+
+  pg:
+    github: will/crystal-pg
+    version: 0.17.0
 
   rate_limiter:
     github: z64/rate_limiter
