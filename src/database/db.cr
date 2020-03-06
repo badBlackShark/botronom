@@ -11,7 +11,7 @@ class Db
     db = nil
     until succeeded
       begin
-        db = DB.open("postgres://root@localhost:5430/botronom_db")
+        db = DB.open("postgres://db:5430/botronom_db")
         succeeded = true
       rescue e : Exception
         sleep 2
