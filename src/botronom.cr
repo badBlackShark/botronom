@@ -1,4 +1,5 @@
 require "yaml"
+require "http"
 require "discordcr"
 require "discordcr-plugin"
 require "discordcr-middleware"
@@ -16,8 +17,8 @@ require "./vectronom-levels/*"
 
 module Botronom
   # Stuff used across all modules, especially heavily used emojis.
-  CHECKMARK = "\u2705"
-  CROSSMARK = "\u274C"
+  CHECKMARK = URI.encode("\u2705")
+  CROSSMARK = URI.encode("\u274C")
 
   class Bot
     getter client    : Discord::Client
