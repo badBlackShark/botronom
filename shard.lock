@@ -2,31 +2,31 @@ version: 1.0
 shards:
   bisect:
     github: spider-gazelle/bisect
-    version: 1.1.1
+    version: 1.2.0
 
   cron_parser:
     github: kostya/cron_parser
-    version: 0.2.0
+    version: 0.3.0
 
   db:
     github: crystal-lang/crystal-db
-    version: 0.5.1
+    version: 0.8.0
 
   discordcr:
-    github: meew0/discordcr
-    commit: 1d40f5fa0c9069a817ddbb3daf26782607d69d7d
+    github: discordcr/discordcr
+    commit: f55992da080f3ca1a4e02d0b96ce3e61fadd0471
 
   discordcr-middleware:
     github: z64/discordcr-middleware
-    commit: 1606ec9a61aa8aa1c04810227fd796807f8ffb93
+    commit: 5c0b2ba082839aef76b6f452eacb30a54bdd2675
 
   discordcr-plugin:
     github: z64/discordcr-plugin
-    commit: f444ac6b3ca58b600a4066427b3126c70409d5fd
+    commit: a96031f95337bf1aa6ba212007c84f4c0c4a2c99
 
   pg:
     github: will/crystal-pg
-    version: 0.17.0
+    version: 0.20.0
 
   rate_limiter:
     github: z64/rate_limiter
@@ -34,5 +34,5 @@ shards:
 
   tasker:
     github: spider-gazelle/tasker
-    version: 1.2.0
+    version: 1.2.2
 

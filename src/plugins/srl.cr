@@ -82,7 +82,7 @@ class Botronom::Srl
   def ensure_speedrun_channel(payload)
     # We can do this because the bot is only in one server
     @channel = (client.get_guild_channels(guild_id: payload.id).find { |c| c.name.try(&.downcase) == "speedrunning" } ||
-               client.create_guild_channel(guild_id: payload.id, name: "speedrunning", type: Discord::ChannelType::GuildText, bitrate: nil, user_limit: nil)).id
+               client.create_guild_channel(payload.id, "speedrunning", Discord::ChannelType::GuildText, nil, nil, nil, nil, nil, nil, nil)).id
   end
 
   private def liverace_request_loop

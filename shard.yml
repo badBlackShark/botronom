@@ -4,7 +4,7 @@ version: 1.1.0
 dependencies:
   # Framework for the Discord API.
   discordcr:
-    github: z64/discordcr
+    github: discordcr/discordcr
     branch: master
   # Making discordcr much nicer to use.
   discordcr-middleware:

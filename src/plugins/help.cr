@@ -64,6 +64,6 @@ class Botronom::Help
   )]
   def set_game(payload)
     # For some reason I need to send this 0, otherwise Discord refuses to update the game.
-    client.status_update(game: Discord::GamePlaying.new(".help, among other things.", 0.to_i64))
+    client.status_update(game: Discord::GamePlaying.new(".help, among other things."))
   end
 end

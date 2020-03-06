@@ -85,7 +85,7 @@ class Botronom::Logger
         Botronom.bot.db.insert_row("shrk_logger", [guild, @@log_channel[guild]])
         client.create_message(@@log_channel[guild], "I have set this channel as my log channel. Staff can disable logging with the `disableLogging` command, or change the channel with `setLogChannel`.")
       else
-        @@log_channel[guild] = client.create_guild_channel(guild, "logs", Discord::ChannelType::GuildText, nil, nil).id
+        @@log_channel[guild] = client.create_guild_channel(guild, "logs", Discord::ChannelType::GuildText, nil, nil, nil, nil, nil, nil, nil).id
         Botronom.bot.db.insert_row("shrk_logger", [guild, @@log_channel[guild]])
         client.create_message(@@log_channel[guild], "I have created this channel as my log channel. Staff can disable logging with the `disableLogging` command, or change the channel with `setLogChannel`.")
       end

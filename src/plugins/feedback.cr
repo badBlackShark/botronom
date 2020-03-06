@@ -303,7 +303,7 @@ class Botronom::Feedback
       Botronom.bot.db.update_value("shrk_feedback", name, channel.value.to_i64, "guild", guild.to_s)
       return channel, :found
     else
-      channel = client.create_guild_channel(guild, name, Discord::ChannelType::GuildText, nil, nil).id
+      channel = client.create_guild_channel(guild, name, Discord::ChannelType::GuildText, nil, nil, nil, nil, nil, nil, nil).id
       client.edit_channel_permissions(channel, guild, "role", Discord::Permissions::None, Discord::Permissions::SendMessages)
       Botronom.bot.db.update_value("shrk_feedback", name, channel.value.to_i64, "guild", guild.to_s)
       return channel, :created
