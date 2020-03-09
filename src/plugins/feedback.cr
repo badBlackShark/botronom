@@ -184,8 +184,13 @@ class Botronom::Feedback
         end
       end
 
-      embed.colour = 0x00FF00
-      embed.footer = Discord::EmbedFooter.new(text: "#{embed.footer.not_nil!.text} - Marked as resolved by #{payload.author.username}##{payload.author.discriminator}.")
+      if embed.colour == 0x00FF00
+        client.create_message(payload.channel_id, "This submission is already resolved.")
+        return
+      else
+        embed.colour = 0x00FF00
+        embed.footer = Discord::EmbedFooter.new(text: "#{embed.footer.not_nil!.text} - Marked as resolved by #{payload.author.username}##{payload.author.discriminator}.")
+      end
 
       client.edit_message(msg.channel_id, msg.id, msg.content, embed)
       client.create_reaction(payload.channel_id, payload.id, CHECKMARK)
