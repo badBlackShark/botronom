@@ -1,7 +1,7 @@
 require "./botronom"
 require "./database/db"
 
-print "Connecting to database..."
+puts "Connecting to database..."
 db = Db.new
 puts "done!"
 

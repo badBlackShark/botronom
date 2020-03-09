@@ -5,19 +5,10 @@ class Db
   getter db : DB::Database
 
   def initialize
-    succeeded = false
+    # db = DB.open("postgres://root:password@localhost:5432/botronom_db") # dev
+    db = DB.open("postgres://root:password@db:5432/botronom_db") # production
+    succeeded = true
 
-    # This is in case the app needs longer to start than the db.
-    db = nil
-    until succeeded
-      begin
-        db = DB.open("postgres://db:5430/botronom_db")
-        succeeded = true
-      rescue e : Exception
-        sleep 2
-      end
-
-    end
     @db = db.not_nil!
   end
 
