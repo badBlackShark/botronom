@@ -40,6 +40,24 @@ plugins:
       opt_args: '[player]'
       description: 'Shows you all runs for [player]. If not given, defaults to your Discord username. Player names are fuzzy matched.'
       perm_level: 0
+    mute:
+      name: 'mute'
+      args: 'srcom'
+      opt_args: null
+      description: "Mutes the speedrun.com notifications (new, newly verified and newly rejected runs)."
+      perm_level: 1
+    unmute:
+      name: 'unmute'
+      args: 'srcom'
+      opt_args: null
+      description: "Unmutes the speedrun.com notifications (new, newly verified and newly rejected runs)."
+      perm_level: 1
+    setgame:
+      name: 'setGame'
+      args: '<abbreviation>'
+      opt_args: null
+      description: "Sets the game for this server to the game with <abbreviation>. The abbreviation can be found at the end of the speedrun.com URL: `speedrun.com/<this-part-here>`."
+      perm_level: 1
 
   SRL:
     leaderboard:
