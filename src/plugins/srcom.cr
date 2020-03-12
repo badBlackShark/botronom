@@ -277,7 +277,7 @@ class Botronom::Srcom
 
     player = player_finder.find(player)
     if player.empty?
-      client.create_message(payload.channel_id, "It doesn't seem like that player has run this game. Players that have submitted a run: #{players.join(", ")}")
+      client.create_message(payload.channel_id, "It doesn't seem like that player has run this game.}")
       return
     end
 
