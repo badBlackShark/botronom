@@ -5,8 +5,10 @@ class SrcomApi
   BASE_URL = "https://www.speedrun.com/api/v1/"
 
   getter game_id : String
+  getter name    : String
 
   def initialize(@game_id : String)
+    @name = JSON.parse(HTTP::Client.get(BASE_URL + "games/#{@game_id}").body)["data"]["names"]["international"].as_s
   end
 
   # TODO: This probably needs to get a lot smarter. For small games this implementation is fine, but

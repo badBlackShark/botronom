@@ -1,5 +1,5 @@
 require "tasker"
-# TODO: Let mods turn run notifs off
+# TODO: DOCUMENT NEW COMMANDS
 class Botronom::Srcom
   include Discord::Plugin
 
@@ -286,7 +286,7 @@ class Botronom::Srcom
     # We do slices to not break the character limit.
     player_runs.sort_by { |r| "#{r.category.name}#{" - #{r.level.try &.name}" if r.level}" }.each_slice(15) do |runs_subset|
       embed = Discord::Embed.new
-      embed.title  = "Every run of #{player}"
+      embed.title  = "Every run of #{@@apis[guild].name} by #{player}"
       embed.colour = 0xb21e7b
 
       fields = Array(Discord::EmbedField).new
@@ -383,7 +383,7 @@ class Botronom::Srcom
   end
 
   def self.request_loop(guild, client)
-    task = Tasker.instance.every(20.seconds) do
+    task = Tasker.instance.every(2.minutes) do
       all_runs = @@apis[guild].get_runs.map { |raw| Run.from_json(raw) }
       all_runs.reject { |run| !@@runs[guild].find { |r| r.id == run.id && r.status == run.status }.nil? }.each do |new_run|
         # This is to show what the potential rank of a newly submitted run would be, should it get verified.
