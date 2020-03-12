@@ -7,7 +7,8 @@ class Botronom::PluginSelector
   # All the plugins that can be disabled.
   @@optional_plugins = [
     "logging",
-    "feedback"
+    "feedback",
+    "srcom"
   ]
 
   @first = true

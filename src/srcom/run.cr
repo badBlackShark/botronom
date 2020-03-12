@@ -30,32 +30,36 @@ class Run
 
   def self.from_json(raw_data)
     time = raw_data["times"]["primary_t"]
-    video = (raw_data["videos"]["text"]? || raw_data["videos"]["links"][0]["uri"]).as_s
+
+    if raw_data["videos"] == nil
+      video = "No video proof provided."
+    else
+      video = (raw_data["videos"]["text"]? || raw_data["videos"]["links"][0]["uri"]).as_s
+    end
     status = raw_data["status"]["status"].as_s
 
     rej_reason = if status == "rejected"
-      raw_data["status"]["reason"].as_s
+      raw_data["status"]["reason"].as_s? || "*No rejection reason provided.*"
     else
       nil
     end
 
-    # I hate having to do this this way, but I think I have to. Unfortunately srcom's types aren't
-    # consistent here, as the data is either an empty Array or a Hash. So I can't check if "id" is
-    # present because that fails on an Array, I can't use as_h (or as_a) for the same reason, and I
-    # can't use is_a? because it's JSON::Any either way. Thank you srcom :)
-    # Nvm, this can probably done with .as_h? || as_a. I guess that's a TODO
-    level = begin
-      Level.from_json(raw_data["level"]["data"].as_h)
-    rescue e : Exception
-      nil
+    players = raw_data["players"]["data"].as_a.map do |plyr|
+      if plyr["rel"] == "guest"
+        plyr["name"].as_s
+      else
+        plyr["names"]["international"].as_s
+      end
     end
+
+    level = raw_data["level"]["data"].as_h? ? Level.from_json(raw_data["level"]["data"].as_h) : nil
 
     return Run.new(
       raw_data["id"].as_s,
       raw_data["weblink"].as_s,
       (time.as_i? || time.as_f? || raise "Invalid field: #{time}").to_f.seconds,
       Category.from_json(raw_data["category"]["data"]),
-      raw_data["players"]["data"].as_a.map { |p| p["names"]["international"].as_s },
+      players,
       video,
       status,
       raw_data["comment"].as_s? || "*No comment given*",

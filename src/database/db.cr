@@ -37,6 +37,6 @@ class Db
     values.size.times { |i| placeholders << "$#{i+1}" }
     placeholders = "(" + placeholders.join(", ") + ")"
 
-    @db.exec("insert into #{table} values #{placeholders}", values)
+    @db.exec("insert into #{table} values #{placeholders}", args: values)
   end
 end
